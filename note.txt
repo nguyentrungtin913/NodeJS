@@ -1,5 +1,5 @@
 - TypeScript
-- Postgrest
+- PostgreSQL
 - Digdag
 - Mail
 
