@@ -1,1 +1,4 @@
-# NodeJS
+node_modules
+# Keep environment variables out of version control
+package-lock.json
+dist

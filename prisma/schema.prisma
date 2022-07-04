@@ -1,0 +1,161 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model gd_user {
+  user_id  Int  @default(autoincrement()) @id
+  user_email String 
+  user_password  String?  
+  user_first_name  String? 
+  user_last_name String? 
+  user_status Int?
+  user_create_at DateTime? @db.Timestamptz(0)
+  user_update_at DateTime? @db.Timestamptz(0)
+  user_create_by Int ? @default(0)
+  user_update_by Int ? @default(0)
+  user_deleted Int ? @default(0)
+  user_deleted_at DateTime ? @db.Timestamptz(0)
+  user_tokens gd_token[]
+  user_roles gd_user_role[]
+  user_projects gd_user_project[]
+}
+
+model gd_token {
+  access_token String 
+  user_id Int
+  referesh_token String ?
+  token_create_at String ?
+  token_expired_at String ?
+  user gd_user? @relation(fields: [user_id], references: [user_id]) 
+  @@id([access_token, user_id])
+}
+model gd_role {
+  role_id Int  @default(autoincrement()) @id
+  role_name String
+  role_create_date DateTime ? @db.Timestamptz(0)
+  role_update_date DateTime ? @db.Timestamptz(0)
+  role_create_by Int ? @default(0)
+  role_update_by Int ? @default(0)
+  user_role gd_user_role[]
+}
+
+model gd_user_role {
+  user_id Int
+  role_id Int 
+  user_role_create_date DateTime ? @db.Timestamptz(0)
+  user_role_update_date DateTime ? @db.Timestamptz(0)
+  user_role_create_by Int ? @default(0)
+  user_role_update_by Int ? @default(0)
+  user gd_user? @relation(fields: [user_id], references: [user_id])
+  role gd_role? @relation(fields: [role_id], references: [role_id]) 
+  @@unique([user_id, role_id])
+  @@id([user_id, role_id])
+}
+
+model gd_project {
+  project_id Int @default(autoincrement()) @id
+  project_name String ?
+  digdag_project_id Int @default(0)
+  project_revision String ?
+  project_create_date DateTime ? @db.Timestamptz(0)
+  project_update_date DateTime ? @db.Timestamptz(0)
+  project_create_by Int ? @default(0)
+  project_update_by Int ? @default(0)
+  project_deleted Int ? @default(0)
+  project_deleted_at DateTime ? @db.Timestamptz(0)
+  user_projects gd_user_project[]
+  workflows gd_workflow[]
+  files gd_file[]
+}
+
+model gd_user_project {
+  project_id Int
+  user_id Int
+  user_project_create_date DateTime ? @db.Timestamptz(0)
+  user_project_update_date DateTime ? @db.Timestamptz(0)
+  user_project_create_by Int ? @default(0)
+  user_project_update_by Int ? @default(0)
+  user gd_user? @relation(fields: [user_id], references: [user_id])  
+  project gd_project @relation(fields: [project_id], references: [project_id]) 
+  @@id([project_id, user_id])
+}
+
+model gd_workflow {
+  workflow_id Int @default(autoincrement()) @id
+  workflow_name String
+  project_id Int ?
+  workflow_create_date DateTime ? @db.Timestamptz(0)
+  workflow_update_date DateTime ? @db.Timestamptz(0)
+  workflow_create_by Int ? @default(0)
+  workflow_update_by Int ? @default(0)
+  digdag_workflow_id Int @default(0)
+  workflow_delete Int ? @default(0)
+  workflow_delete_at DateTime ? @db.Timestamptz(0)
+  project gd_project ? @relation(fields: [project_id], references: [project_id])
+  logs gd_log[]
+  files gd_file[]
+}
+
+model gd_file {
+  file_id Int @default(autoincrement()) @id
+  file_path String ?
+  project_id Int ?
+  workflow_id Int ?
+  file_create_date DateTime ? @db.Timestamptz(0)
+  file_update_date DateTime ? @db.Timestamptz(0)
+  file_create_by Int ? @default(0)
+  file_update_by Int ? @default(0)
+  file_deleted Int ? @default(0)
+  file_deleted_at DateTime ? @db.Timestamptz(0)
+  project gd_project ? @relation(fields: [project_id], references: [project_id]) 
+  workflow gd_workflow ? @relation(fields: [workflow_id], references: [workflow_id]) 
+}
+
+model gd_log {
+  log_id Int @default(autoincrement()) @id
+  workflow_id Int ?
+  log_session_time DateTime ?
+  log_session_attempt String ?
+  log_last_duration String ?
+  log_status Int ?
+  log_created_date DateTime ? @db.Timestamptz(0)
+  log_updated_date DateTime ? @db.Timestamptz(0)
+  log_created_by Int ? @default(0)
+  log_updated_by Int ? @default(0)
+  workflow gd_workflow ? @relation(fields: [workflow_id], references: [workflow_id]) 
+}
+
+model gd_datalake_file {
+  dl_file_id Int @default(autoincrement()) @id
+  dl_file_name String ?
+  dl_folder_id Int ?
+  dl_file_content String ?
+  dl_file_deleted Int ? @default(0)
+  dl_file_created_by Int ? @default(0)
+  dl_file_updated_by Int ? @default(0)
+  dl_file_deleted_at DateTime ? @db.Timestamptz(0)
+  dl_file_updated_at DateTime ? @db.Timestamptz(0)
+  dl_file_created_at DateTime ? @db.Timestamptz(0)
+  folder gd_datalake_folder ? @relation(fields: [dl_folder_id], references: [dl_folder_id]) 
+}
+
+model gd_datalake_folder {
+  dl_folder_id Int @default(autoincrement()) @id
+  dl_folder_name String ?
+  dl_parent_folder_id Int ?
+  dl_folder_deleted Int ? @default(0)
+  dl_folder_created_by Int ? @default(0)
+  dl_folder_updated_by Int ? @default(0)
+  dl_folder_deleted_at DateTime ? @db.Timestamptz(0)
+  dl_folder_updated_at DateTime ? @db.Timestamptz(0)
+  dl_folder_created_at DateTime ? @db.Timestamptz(0)
+  files gd_datalake_file[]
+}
+
