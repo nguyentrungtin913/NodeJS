@@ -1,0 +1,18 @@
+- TypeScript
+- Postgrest
+- Digdag
+- Mail
+
+run:
+npm install
+npm run build
+npm run start
+npm run dev -> test
+
+
+npm install @prisma/client	cài prisma
+npx prisma studio
+
+
+
+link tham khảo https://dev.to/nditah/how-to-build-a-rest-api-with-node-prisma-and-postgresql-429a
